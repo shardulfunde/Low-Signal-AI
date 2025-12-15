@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from Chatbot.chatbot import Ai_stream
+from testGenerator.generate_test import generate_test_ai
+from Data_Templates.test_generation_templates import TestGenInput, TestGenOutput
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
@@ -31,3 +33,8 @@ def chat_stream(question:str):
         event_generator(),
         media_type="text/event-stream"
     )
+    
+@app.post("/test/generate",response_model=TestGenOutput)
+def generate_test(payload:TestGenInput):
+    result = generate_test_ai(payload)
+    return result
