@@ -16,5 +16,3 @@ class TestGenOutput(BaseModel):
     topic:str
     difficuly:str
     questions:List[Question]
-    
-    

@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from Chatbot.chatbot import Ai_stream
 from testGenerator.generate_test import generate_test_ai
 from Data_Templates.test_generation_templates import TestGenInput, TestGenOutput
+from Data_Templates.learning_path_templates import LearningPathInput, LearningPathOutPut,TopicList,Topic,TopicDetail
+from learningpath import create_learning_path, create_topic_list, create_topic_detail
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
@@ -38,3 +40,15 @@ def chat_stream(question:str):
 def generate_test(payload:TestGenInput):
     result = generate_test_ai(payload)
     return result
+
+@app.post("/learning_path/generate",response_model=LearningPathOutPut)
+def generate_learning_path(payload:LearningPathInput):
+    return create_learning_path(payload)
+    
+@app.post("/learning_path/generate/topic_list",response_model=TopicList)
+def generate_topic_list(payload:LearningPathInput):
+    return create_topic_list(payload)
+
+@app.post("/learning_path/generate/topic_detail",response_model=Topic)
+def generate_topic_detail(payload:TopicDetail):
+    return create_topic_detail(payload)
