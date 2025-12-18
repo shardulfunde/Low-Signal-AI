@@ -58,7 +58,7 @@ topic_expander_prompt = PromptTemplate(
 You are an expert tutor.
 
 Task:
-Create learning content for a single topic.
+Create very detailed explanation and practice questions for the given topic, tailored to the learner's profile.
 
 Global learner context:
 Subject: {subject}
@@ -69,7 +69,7 @@ Topic to expand:
 Topic name: {topic_name}
 
 Strict rules:
-- Explain the topic clearly and simply, appropriate for the learner's age.
+- Explain the topic clearly and simply, appropriate for the learner's age,and in detail
 - Explanation must be focused only on this topic.
 - Create **exactly 2 or 3 easy practice questions** suitable for beginners.
 - Do NOT include answers unless the schema requires them.
