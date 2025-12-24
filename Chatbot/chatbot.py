@@ -1,10 +1,9 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_cerebras import ChatCerebras
 from dotenv import load_dotenv
 
 load_dotenv()
 
-model = ChatCerebras(model="llama-3.3-70b",streaming=True)
+model = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507",streaming=True)
 
 
 def Ai_stream(question:str):

@@ -71,7 +71,7 @@ Topic name: {topic_name}
 Strict rules:
 - Explain the topic clearly and simply, appropriate for the learner's age,and in detail
 - Explanation must be focused only on this topic.
-- Create **exactly 2 or 3 easy practice questions** suitable for beginners.
+- Create **exactly 5 easy practice questions** suitable for beginners.
 - Do NOT include answers unless the schema requires them.
 - Do NOT reference other topics.
 - Do NOT add extra fields or commentary.
