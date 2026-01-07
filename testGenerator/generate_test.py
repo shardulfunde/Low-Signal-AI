@@ -1,11 +1,12 @@
 from langchain_cerebras import ChatCerebras
+from langchain_google_genai import ChatGoogleGenerativeAI
 from Data_Templates.test_generation_templates import TestGenInput,Question,TestGenOutput
 from dotenv import load_dotenv
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import PromptTemplate
 load_dotenv()
 
-model = ChatCerebras(model="llama-3.3-70b")
+LLM = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite")
 parser = PydanticOutputParser(pydantic_object=TestGenOutput)
 
 
@@ -34,6 +35,7 @@ Rules:
         "format_instructions": parser.get_format_instructions()
     },
 )
+model = ChatCerebras(model="llama-3.3-70b")
 
 def generate_test_ai(payload: TestGenInput) -> TestGenOutput:
     chain = prompt | model | parser

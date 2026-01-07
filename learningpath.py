@@ -1,12 +1,17 @@
 
 from langchain_cerebras import ChatCerebras
+from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from Data_Templates.learning_path_templates import LearningPathInput,Topic,LearningPathOutPut,TopicList,TopicDetail
 
 load_dotenv()
-model = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507")
+
+
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite")
+
+
 topic_parser = PydanticOutputParser(pydantic_object=Topic)
 topic_list_parser = PydanticOutputParser(pydantic_object=TopicList)
 
@@ -52,7 +57,7 @@ Output rules:
 )
 
 from langchain_core.prompts import PromptTemplate
-
+model = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507")
 topic_expander_prompt = PromptTemplate(
     template="""
 You are an expert tutor.
