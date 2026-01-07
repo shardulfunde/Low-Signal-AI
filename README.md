@@ -18,15 +18,14 @@ Key features include support for multiple languages (**English, Hindi, Marathi**
 * **Framework:** FastAPI
 * **Server:** Uvicorn
 * **AI/LLM Orchestration:** LangChain
-* **Inference Provider:** Cerebras (using `langchain-cerebras`)
+* **Inference Provider:** Cerebras (using `langchain-google-genai` and `langchain-cerebras`)
 * **Models Used:**
-    * `llama-3.3-70b` (Chat & Test Generation)
-    * `qwen-3-235b-a22b-instruct-2507` (Learning Path Generation)
+    * `gemini-2.5-flash-lite`
 
 ## 📋 Prerequisites
 
 * Python 3.9+
-* A Cerebras API Key (and potentially Google Gemini API Key if you uncomment specific imports).
+* A Google Gemini API Key (and potentially Cerebras API Key if you uncomment specific imports).
 
 ## 📦 Installation
 
@@ -63,3 +62,4 @@ Start the server using Uvicorn:
 
 ```bash
 uvicorn main:app --reload
+
