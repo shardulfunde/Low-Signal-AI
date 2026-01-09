@@ -1,4 +1,5 @@
 
+import json
 from langchain_cerebras import ChatCerebras
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
@@ -58,6 +59,7 @@ Output rules:
 
 from langchain_core.prompts import PromptTemplate
 model = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507")
+model2 = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507",streaming=True)
 topic_expander_prompt = PromptTemplate(
     template="""
 You are an expert tutor.
@@ -107,14 +109,15 @@ Output rules:
 
 
 topic_planner_chain = topic_planner_prompt | model | topic_list_parser
-topic_expander_chain = topic_expander_prompt | model | topic_parser
+topic_expander_chain = topic_expander_prompt | model2 
+topic_expander_parser_chain = topic_expander_prompt | model | topic_parser
 
 def create_learning_path(payload:LearningPathInput)->LearningPathOutPut:
     result = topic_planner_chain.invoke(
         payload.model_dump()
     )
 
-    topic_expander = topic_expander_chain.batch([
+    topic_expander = topic_expander_parser_chain.batch([
         {
             "subject": payload.subject,
             "year_old": payload.year_old,
@@ -136,7 +139,7 @@ def create_topic_list(payload:LearningPathInput) -> TopicList:
     return topic_list
 
 def create_topic_detail(payload:TopicDetail) -> Topic:
-    topic_detail = topic_expander_chain.invoke(
+    topic_detail = topic_expander_parser_chain.invoke(
         {
             "subject": payload.payload.subject,
             "year_old": payload.payload.year_old,
@@ -145,3 +148,38 @@ def create_topic_detail(payload:TopicDetail) -> Topic:
         }
     )
     return topic_detail
+
+def topic_detail_event_stream(payload:TopicDetail):
+    buffer = ""
+    stream = topic_expander_chain.stream(
+        {
+            "subject": payload.payload.subject,
+            "year_old": payload.payload.year_old,
+            "preferred_language": payload.payload.preferred_language,
+            "topic_name": payload.topic_name,
+        }
+    )
+    for chunk in stream:
+        content = chunk.content or ""
+        buffer += content
+        
+        yield f"data: {json.dumps({
+            "type":"explanation_chunk",
+            "data":content
+        })}\n\n"
+        
+    buffer = buffer.replace("```json", "").replace("```", "")
+    try:
+        topic = topic_parser.parse(buffer)
+    except Exception:
+        yield f"data: {json.dumps({
+            'type': 'error',
+            'message': 'Parsing failed'
+        })}\n\n"
+        return   
+    for q in topic.practice_questions:
+        yield f"data: {json.dumps({
+            'type': 'question',
+            'data': q.model_dump()
+        })}\n\n"
+    yield f"data: {json.dumps({'type':'done'})}\n\n"

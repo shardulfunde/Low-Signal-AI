@@ -5,7 +5,7 @@ from Chatbot.chatbot import Ai_stream
 from testGenerator.generate_test import generate_test_ai
 from Data_Templates.test_generation_templates import TestGenInput, TestGenOutput
 from Data_Templates.learning_path_templates import LearningPathInput, LearningPathOutPut,TopicList,Topic,TopicDetail
-from learningpath import create_learning_path, create_topic_list, create_topic_detail
+from learningpath import create_learning_path, create_topic_list, create_topic_detail, topic_detail_event_stream
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
@@ -52,3 +52,10 @@ def generate_topic_list(payload:LearningPathInput):
 @app.post("/learning_path/generate/topic_detail",response_model=Topic)
 def generate_topic_detail(payload:TopicDetail):
     return create_topic_detail(payload)
+
+@app.post("/learning_path/generate/topic_detail/stream")
+def stream_topic_detail(payload:TopicDetail):
+    return StreamingResponse(
+        topic_detail_event_stream(payload),
+        media_type="text/event-stream"
+    )

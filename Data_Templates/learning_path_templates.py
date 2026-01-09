@@ -15,7 +15,7 @@ class LearningPathInput(BaseModel):
 
 class Topic(BaseModel):
     topic_name:str=Field(description="Name of the topic")
-    explaination:str=Field(description="Detailed explanation of the topic")
+    explanation:str=Field(description="Detailed explanation of the topic")
     practice_questions:List[Question]=Field(default=None,description="List of 2-3 easy practice questions for the topic for learning purposes")
     
 class LearningPathOutPut(BaseModel):
