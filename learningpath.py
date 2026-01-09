@@ -4,7 +4,7 @@ from langchain_cerebras import ChatCerebras
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.output_parsers import PydanticOutputParser,JsonOutputParser
 from Data_Templates.learning_path_templates import LearningPathInput,Topic,LearningPathOutPut,TopicList,TopicDetail
 
 load_dotenv()
@@ -148,38 +148,44 @@ def create_topic_detail(payload:TopicDetail) -> Topic:
         }
     )
     return topic_detail
+def topic_detail_event_stream(payload: TopicDetail):
+    parser = JsonOutputParser(pydantic_object=Topic)
+    streaming_chain = topic_expander_prompt | model2 | parser
 
-def topic_detail_event_stream(payload:TopicDetail):
-    buffer = ""
-    stream = topic_expander_chain.stream(
-        {
-            "subject": payload.payload.subject,
-            "year_old": payload.payload.year_old,
-            "preferred_language": payload.payload.preferred_language,
-            "topic_name": payload.topic_name,
-        }
-    )
-    for chunk in stream:
-        content = chunk.content or ""
-        buffer += content
-        
-        yield f"data: {json.dumps({
-            "type":"explanation_chunk",
-            "data":content
-        })}\n\n"
-        
-    buffer = buffer.replace("```json", "").replace("```", "")
+    input_data = {
+        "subject": payload.payload.subject,
+        "year_old": payload.payload.year_old,
+        "preferred_language": payload.payload.preferred_language,
+        "topic_name": payload.topic_name,
+    }
+
+    last_sent_length = 0
+    final_data = {} 
+
     try:
-        topic = topic_parser.parse(buffer)
-    except Exception:
-        yield f"data: {json.dumps({
-            'type': 'error',
-            'message': 'Parsing failed'
-        })}\n\n"
-        return   
-    for q in topic.practice_questions:
-        yield f"data: {json.dumps({
-            'type': 'question',
-            'data': q.model_dump()
-        })}\n\n"
-    yield f"data: {json.dumps({'type':'done'})}\n\n"
+        for chunk in streaming_chain.stream(input_data):
+            final_data = chunk 
+            
+            if "explanation" in chunk and chunk["explanation"]:
+                current_text = chunk["explanation"]
+                
+                if len(current_text) > last_sent_length:
+                    new_content = current_text[last_sent_length:]
+                    last_sent_length = len(current_text)
+                    
+                    yield f"data: {json.dumps({
+                        'type': 'explanation_chunk', 
+                        'data': new_content
+                    })}\n\n"
+
+        if "practice_questions" in final_data:
+             for q in final_data["practice_questions"]:
+                yield f"data: {json.dumps({
+                    'type': 'question', 
+                    'data': q
+                })}\n\n"
+
+        yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+    except Exception as e:
+        yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
