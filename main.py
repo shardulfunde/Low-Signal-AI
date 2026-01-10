@@ -9,6 +9,7 @@ from learningpath import create_learning_path, create_topic_list, create_topic_d
 from fastapi.middleware.cors import CORSMiddleware
 from sarvam_api import generate_sarvam_tts
 from fastapi.responses import StreamingResponse, FileResponse
+from test_analysis import analyze_test_service, TestAnalysisInput, TestAnalysisOutput
 import os
 import io
 from learning_path_feedback import generate_quiz_feedback,QuizFeedbackInput,QuizFeedbackOutput
@@ -94,4 +95,12 @@ async def generate_feedback_route(payload: QuizFeedbackInput):
 
     except Exception as e:
         print(f"Server Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/test/analyze", response_model=TestAnalysisOutput)
+def analyze_test(payload: TestAnalysisInput):
+    try:
+        return analyze_test_service(payload)
+    except Exception as e:
+        print(f"Error analyzing test: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
