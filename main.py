@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Response
+from fastapi import FastAPI, HTTPException,Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from Chatbot.chatbot import Ai_stream
@@ -11,6 +11,7 @@ from sarvam_api import generate_sarvam_tts
 from fastapi.responses import StreamingResponse, FileResponse
 import os
 import io
+from learning_path_feedback import generate_quiz_feedback,QuizFeedbackInput,QuizFeedbackOutput
 
 app = FastAPI()
 
@@ -76,3 +77,21 @@ def generate_tts(request: TTSRequest):
     except Exception as e:
         print(f"Server Error: {str(e)}")
         return Response(content=str(e), status_code=500)
+    
+    
+@app.post("/generate_feedback", response_model=QuizFeedbackOutput)
+async def generate_feedback_route(payload: QuizFeedbackInput):
+    """
+    Route that calls the logic in llmfeedback.py
+    """
+    try:
+        result = generate_quiz_feedback(payload)
+        
+        if isinstance(result, dict) and result.get("understanding_level") == "Error":
+            return result
+            
+        return result
+
+    except Exception as e:
+        print(f"Server Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
