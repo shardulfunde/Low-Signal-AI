@@ -1,13 +1,16 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from Chatbot.chatbot import Ai_stream
 from testGenerator.generate_test import generate_test_ai
 from Data_Templates.test_generation_templates import TestGenInput, TestGenOutput
-from Data_Templates.learning_path_templates import LearningPathInput, LearningPathOutPut,TopicList,Topic,TopicDetail
+from Data_Templates.learning_path_templates import LearningPathInput, LearningPathOutPut,TopicList,Topic,TopicDetail,TTSRequest
 from learningpath import create_learning_path, create_topic_list, create_topic_detail, topic_detail_event_stream
 from fastapi.middleware.cors import CORSMiddleware
+from sarvam_api import generate_sarvam_tts
+from fastapi.responses import StreamingResponse, FileResponse
 import os
+import io
 
 app = FastAPI()
 
@@ -59,3 +62,17 @@ def stream_topic_detail(payload:TopicDetail):
         topic_detail_event_stream(payload),
         media_type="text/event-stream"
     )
+    
+@app.post("/generate_tts/")
+def generate_tts(request: TTSRequest):
+    try:
+        audio_data = generate_sarvam_tts(request.text, request.language)
+        
+        if not audio_data:
+             return Response(content="Failed to generate audio", status_code=500)
+
+        return StreamingResponse(io.BytesIO(audio_data), media_type="audio/wav")
+
+    except Exception as e:
+        print(f"Server Error: {str(e)}")
+        return Response(content=str(e), status_code=500)

@@ -25,4 +25,6 @@ class LearningPathOutPut(BaseModel):
 class TopicDetail(BaseModel):
     payload:LearningPathInput=Field(description="Input details for generating topic detail")
     topic_name:str=Field(description="Name of the topic")
-    
+class TTSRequest(BaseModel):
+    text: str
+    language: str
