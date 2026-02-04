@@ -8,21 +8,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ==========================================
-# 1. INPUT SCHEMAS (Validation)
-# ==========================================
-model = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite")
+# Initialize the ChatCerebras model
+llm = ChatCerebras(model="gpt-oss-120b")
+
 
 class QuestionItem(BaseModel):
     question: str
     options: List[str]
     correct_index: int
-    # Optional: allows backend to know what the user chose
     selected_index: Optional[int] = None 
 
 class QuizFeedbackInput(BaseModel):
     topic: str
-    # We accept a list of QuestionItem objects
     questions: List[QuestionItem]
     correct_questions: List[QuestionItem]
     incorrect_questions: List[QuestionItem]
@@ -41,9 +38,6 @@ class QuizFeedbackOutput(BaseModel):
     feedback: str = Field(description="A short, encouraging summary paragraph")
 
 
-# ==========================================
-# 3. GENERATION FUNCTION
-# ==========================================
 
 def generate_quiz_feedback(payload: QuizFeedbackInput) -> dict:
     """
@@ -51,15 +45,10 @@ def generate_quiz_feedback(payload: QuizFeedbackInput) -> dict:
     Accepts a validated Pydantic model as input.
     """
     
-    # Initialize LLM
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash-lite", 
-        temperature=0.3
-    )
     
     parser = PydanticOutputParser(pydantic_object=QuizFeedbackOutput)
     
-    # Helper to format list data cleanly for the prompt
+  
     def format_questions(q_list: List[QuestionItem]):
         if not q_list:
             return "None"
@@ -67,14 +56,13 @@ def generate_quiz_feedback(payload: QuizFeedbackInput) -> dict:
         formatted_text = ""
         for item in q_list:
             formatted_text += f"- Question: {item.question}\n"
-            # If we have the user's wrong answer index, it helps the AI explain WHY they were wrong
+        
             if item.selected_index is not None and item.selected_index != item.correct_index:
                 wrong_answer = item.options[item.selected_index]
                 formatted_text += f"  (User incorrectly chose: {wrong_answer})\n"
                 
         return formatted_text
 
-    # Format inputs for the prompt
     questions_str = format_questions(payload.questions)
     correct_str = format_questions(payload.correct_questions)
     incorrect_str = format_questions(payload.incorrect_questions)

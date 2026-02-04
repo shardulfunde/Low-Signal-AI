@@ -58,8 +58,8 @@ Output rules:
 )
 
 from langchain_core.prompts import PromptTemplate
-model = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507")
-model2 = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507",streaming=True)
+model = ChatCerebras(model="gpt-oss-120b")
+model2 = ChatCerebras(model="gpt-oss-120b",streaming=True)
 topic_expander_prompt = PromptTemplate(
     template="""
 You are an expert tutor.
