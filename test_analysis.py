@@ -41,7 +41,7 @@ class TestAnalysisOutput(BaseModel):
 # 2. MODEL SETUP
 # ==========================================
 # Using Gemini Flash for fast and accurate analysis
-analysis_model = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507")
+analysis_model = ChatCerebras(model="gpt-oss-120b")
 
 
 # ==========================================

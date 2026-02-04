@@ -7,7 +7,7 @@ load_dotenv()
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite")
 
 
-model = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507",streaming=True)
+model = ChatCerebras(model="gpt-oss-120b",streaming=True)
 
 
 def Ai_stream(question:str):
