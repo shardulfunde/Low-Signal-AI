@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize the ChatCerebras model
-llm = ChatCerebras(model="gpt-oss-120b")
+llm = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507")
 
 
 class QuestionItem(BaseModel):
