@@ -35,7 +35,7 @@ Rules:
         "format_instructions": parser.get_format_instructions()
     },
 )
-model = ChatCerebras(model="llama-3.3-70b")
+model = ChatCerebras(model="qwen-3-235b-a22b-instruct-2507")
 
 def generate_test_ai(payload: TestGenInput) -> TestGenOutput:
     chain = prompt | model | parser
